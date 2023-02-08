@@ -1,0 +1,259 @@
+terraform {
+  required_providers {
+    netapp-cloudmanager = {
+      source = "NetApp/netapp-cloudmanager"
+      version = "23.1.1"
+    }
+    google = {
+      source = "hashicorp/google"
+      version = "4.52.0"
+    }
+  }
+}
+
+provider "netapp-cloudmanager" {
+  refresh_token = var.refresh_token
+}
+
+provider "google" {
+  # Configuration options
+}
+
+
+#creates connector service account in the project
+resource "google_project_iam_custom_role" "my-custom-role" {
+  role_id     = "CM_Connector_Setup"
+  title       = "Connector deployment policy"
+  description = "Permissions for the user who deploys the Connector from BlueXP"
+  permissions = ["iam.compute.disks.create",
+"iam.compute.disks.get",
+"iam.compute.disks.list",
+"iam.compute.disks.setLabels",
+"iam.compute.disks.use",
+"iam.compute.firewalls.create",
+"iam.compute.firewalls.delete",
+"iam.compute.firewalls.get",
+"iam.compute.firewalls.list",
+"iam.compute.globalOperations.get",
+"iam.compute.images.get",
+"iam.compute.images.getFromFamily",
+"iam.compute.images.list",
+"iam.compute.images.useReadOnly",
+"iam.compute.instances.attachDisk",
+"iam.compute.instances.create",
+"iam.compute.instances.get",
+"iam.compute.instances.list",
+"iam.compute.instances.setDeletionProtection",
+"iam.compute.instances.setLabels",
+"iam.compute.instances.setMachineType",
+"iam.compute.instances.setMetadata",
+"iam.compute.instances.setTags",
+"iam.compute.instances.start",
+"iam.compute.instances.updateDisplayDevice",
+"iam.compute.machineTypes.get",
+"iam.compute.networks.get",
+"iam.compute.networks.list",
+"iam.compute.networks.updatePolicy",
+"iam.compute.projects.get",
+"iam.compute.regions.get",
+"iam.compute.regions.list",
+"iam.compute.subnetworks.get",
+"iam.compute.subnetworks.list",
+"iam.compute.zoneOperations.get",
+"iam.compute.zones.get",
+"iam.compute.zones.list",
+"iam.deploymentmanager.compositeTypes.get",
+"iam.deploymentmanager.compositeTypes.list",
+"iam.deploymentmanager.deployments.create",
+"iam.deploymentmanager.deployments.delete",
+"iam.deploymentmanager.deployments.get",
+"iam.deploymentmanager.deployments.list",
+"iam.deploymentmanager.manifests.get",
+"iam.deploymentmanager.manifests.list",
+"iam.deploymentmanager.operations.get",
+"iam.deploymentmanager.operations.list",
+"iam.deploymentmanager.resources.get",
+"iam.deploymentmanager.resources.list",
+"iam.deploymentmanager.typeProviders.get",
+"iam.deploymentmanager.typeProviders.list",
+"iam.deploymentmanager.types.get",
+"iam.deploymentmanager.types.list",
+"iam.resourcemanager.projects.get",
+"iam.compute.instances.setServiceAccount",
+"iam.serviceAccounts.list"]
+}
+
+#Binds user to role
+resource "google_project_iam_member" "gcp-user" {
+  project = "project-id"
+  role    = "/roles/CM_Connector_Setup"
+  member  = "email-user"
+}
+
+
+#creates connector service account in the project
+resource "google_project_iam_custom_role" "my-custom-role" {
+  role_id     = "CM_Connector"
+  title       = "NetApp BlueXP"
+  description = "Permissions for the service account associated with the Connector instance."
+  permissions = ["iam.serviceAccounts.actAs",
+"iam.compute.regionBackendServices.create",
+"iam.compute.regionBackendServices.get",
+"iam.compute.regionBackendServices.list",
+"iam.compute.networks.updatePolicy",
+"iam.compute.backendServices.create",
+"iam.compute.addresses.list",
+"iam.compute.disks.create",
+"iam.compute.disks.createSnapshot",
+"iam.compute.disks.delete",
+"iam.compute.disks.get",
+"iam.compute.disks.list",
+"iam.compute.disks.setLabels",
+"iam.compute.disks.use",
+"iam.compute.firewalls.create",
+"iam.compute.firewalls.delete",
+"iam.compute.firewalls.get",
+"iam.compute.firewalls.list",
+"iam.compute.globalOperations.get",
+"iam.compute.images.get",
+"iam.compute.images.getFromFamily",
+"iam.compute.images.list",
+"iam.compute.images.useReadOnly",
+"iam.compute.instances.addAccessConfig",
+"iam.compute.instances.attachDisk",
+"iam.compute.instances.create",
+"iam.compute.instances.delete",
+"iam.compute.instances.detachDisk",
+"iam.compute.instances.get",
+"iam.compute.instances.getSerialPortOutput",
+"iam.compute.instances.list",
+"iam.compute.instances.setDeletionProtection",
+"iam.compute.instances.setLabels",
+"iam.compute.instances.setMachineType",
+"iam.compute.instances.setMetadata",
+"iam.compute.instances.setTags",
+"iam.compute.instances.start",
+"iam.compute.instances.stop",
+"iam.compute.instances.updateDisplayDevice",
+"iam.compute.machineTypes.get",
+"iam.compute.networks.get",
+"iam.compute.networks.list",
+"iam.compute.projects.get",
+"iam.compute.regions.get",
+"iam.compute.regions.list",
+"iam.compute.snapshots.create",
+"iam.compute.snapshots.delete",
+"iam.compute.snapshots.get",
+"iam.compute.snapshots.list",
+"iam.compute.snapshots.setLabels",
+"iam.compute.subnetworks.get",
+"iam.compute.subnetworks.list",
+"iam.compute.subnetworks.use",
+"iam.compute.subnetworks.useExternalIp",
+"iam.compute.zoneOperations.get",
+"iam.compute.zones.get",
+"iam.compute.zones.list",
+"iam.compute.instances.setServiceAccount",
+"iam.deploymentmanager.compositeTypes.get",
+"iam.deploymentmanager.compositeTypes.list",
+"iam.deploymentmanager.deployments.create",
+"iam.deploymentmanager.deployments.delete",
+"iam.deploymentmanager.deployments.get",
+"iam.deploymentmanager.deployments.list",
+"iam.deploymentmanager.manifests.get",
+"iam.deploymentmanager.manifests.list",
+"iam.deploymentmanager.operations.get",",",
+"iam.deploymentmanager.operations.list",
+"iam.deploymentmanager.resources.get",
+"iam.deploymentmanager.resources.list",
+"iam.deploymentmanager.typeProviders.get",
+"iam.deploymentmanager.typeProviders.list",
+"iam.deploymentmanager.types.get",
+"iam.deploymentmanager.types.list",
+"iam.logging.logEntries.list",
+"iam.logging.privateLogEntries.list",
+"iam.resourcemanager.projects.get",
+"iam.storage.buckets.create",
+"iam.storage.buckets.delete",
+"iam.storage.buckets.get",
+"iam.storage.buckets.list",
+"iam.cloudkms.cryptoKeyVersions.useToEncrypt",
+"iam.cloudkms.cryptoKeys.get",
+"iam.cloudkms.cryptoKeys.list",
+"iam.cloudkms.keyRings.list",
+"iam.storage.buckets.update",
+"iam.iam.serviceAccounts.getIamPolicy",
+"iam.iam.serviceAccounts.list",
+"iam.storage.objects.get",
+"iam.storage.objects.list",
+"iam.monitoring.timeSeries.list",
+"iam.storage.buckets.getIamPolicy",
+"iam.cloudkms.cryptoKeys.getIamPolicy",
+"iam.cloudkms.cryptoKeys.setIamPolicy",
+"iam.cloudkms.keyRings.get",
+"iam.cloudkms.keyRings.getIamPolicy",
+"iam.cloudkms.keyRings.setIamPolicy"]
+}
+
+
+resource "google_service_account" "connectorsa" {
+  account_id = "netapp-connector"
+  display_name = "Connector Service account"
+}
+
+resource "google_project_iam_member" "gcp-user" {
+  project = "project-id"
+  role    = "/roles/CM_Connector"
+  member  = "serviceAccount:netapp-connector@${var.project}.iam.gserviceaccount.com"
+}
+
+
+
+#storage admin service account
+resource "google_service_account" "sa" {
+  account_id   = "service-account-name"
+  display_name = "NetApp CVO Tiering"
+}
+
+resource "google_project_iam_member" "storage_admin_binding" {
+  project = "your_gcp_project_id_here"
+  role    = "roles/storage.admin"
+  member  = "serviceAccount:service-account-name@${var.project}.iam.gserviceaccount.com"
+}
+
+resource "google_service_account_iam_binding" "admin-account-iam" {
+  service_account_id = google_service_account.sa.name
+  role               = "roles/iam.serviceAccountUser"
+
+  members = [
+    "serviceAccount:netapp-connector@${var.project}.iam.gserviceaccount.com"
+  ]
+}
+
+
+resource "netapp-cloudmanager_connector_gcp" "cl-occm-gcp" {
+  #count = var.gcp_connector_deploy_bool ? 1:0
+  provider = netapp-cloudmanager
+  name = var.gcp_connector_name
+  project_id = var.gcp_connector_project_id
+  zone = var.gcp_connector_zone
+  company = var.gcp_connector_company
+  service_account_email = var.gcp_connector_service_account_email
+  service_account_path = var.gcp_connector_service_account_path 
+  account_id = var.gcp_connector_account_id
+}
+
+
+resource "netapp-cloudmanager_cvo_gcp" "cl-cvo-gcp" {
+  provider = netapp-cloudmanager
+  name = var.gcp_cvo_name
+  project_id = var.gcp_cvo_project_id
+  zone = var.gcp_cvo_zone
+  gcp_service_account = var.gcp_cvo_gcp_service_account
+  svm_password = var.gcp_cvo_svm_password
+  client_id = var.client_id
+  workspace_id = var.gcp_cvo_workspace_id
+  license_type = var.gcp_cvo_license_type
+  capacity_package_name = var.gcp_cvo_capacity_package_name
+}
+
