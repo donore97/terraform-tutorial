@@ -257,3 +257,15 @@ resource "netapp-cloudmanager_cvo_gcp" "cl-cvo-gcp" {
   capacity_package_name = var.gcp_cvo_capacity_package_name
 }
 
+
+
+
+
+
+
+
+
+
+
+https://cloudmanager.cloud.netapp.com/occm/api/gcp/ha/working-environments/{WORKING ID}/svm'
+
